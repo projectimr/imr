@@ -1,0 +1,11 @@
+name = IMR Cutomization
+description = Module to handle all customization related to IMR
+package = IMR
+version = VERSION
+core = 7.x
+configure = admin/config/people
+
+; Information added by Drupal.org packaging script on 2014-08-06
+version = "7.31"
+project = "drupal"
+datestamp = "1407346433"

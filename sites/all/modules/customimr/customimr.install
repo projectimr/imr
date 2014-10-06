@@ -1,0 +1,68 @@
+<?php
+
+
+function customimr_schema() {
+  $schema['profile_type'] = array(
+    'description' => 'Stores profile type information.',
+    'fields' => array(
+      'tid' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique profile field ID.',
+      ),
+      'profile_type' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+        'description' => 'Profile Type of the the Field added.',
+      ),
+      'status' => array(
+        'type' => 'varchar',
+        'length' => 2,
+        'not null' => FALSE,
+        'description' => 'Profile Type of the the Field added.',
+      ),
+  ),
+  'indexes' => array(
+    'profile_type' => array('profile_type'),
+  ),
+  'primary key' => array('tid'),
+  );
+  
+  $schema['profile_type_field'] = array(
+    'description' => 'Stores profile type information.',
+    'fields' => array(
+      'tfid' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique profile field ID.',
+      ),
+      'tid' => array(
+        'type' => 'varchar',
+        'length' => 8,
+        'not null' => FALSE,
+        'description' => 'Profile Type of the the Field added.',
+      ),
+      'tname' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+        'description' => 'Profile Type of the the Field added.',
+      ),
+      'fid' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+        'description' => 'Profile Type of the the Field added.',
+      ),
+  ),
+  'primary key' => array('tfid'),
+  );
+
+  return $schema;
+}
+
+
+function customimr_uninstall(){
+//  durpal_uninstall_schema('customimr');
+} 
