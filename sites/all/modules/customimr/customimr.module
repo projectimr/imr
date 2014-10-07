@@ -10,6 +10,21 @@
 */
 
 
+
+/**
+* NEED TO DELETE THIS HOOK
+*/
+function customimr_init(){
+  global $user;
+  if($user->uid != 0 && $user->uid != 1){
+    drupal_set_message("Your IMR Number is ".$user->data['imr_no']);
+  } 
+
+  //print_r($user);
+
+}
+
+
 /**
  *
  * Implements hook_form_alter to add the profile type field while adding a field
@@ -62,11 +77,19 @@ function customimr_form_alter(&$form, &$form_state, $form_id){
 */
 function  _add_profile_type_field(&$form){
   //if(arg(4) ==)
+//echo '<pre>';print_r($form);echo '</pre>';
+  $profile_type_val = array();
+  if(isset($form['fid']['#value'])){
+    $profile_type = _get_profile_types_field($form['fid']['#value']);
+    foreach($profile_type as $val){
+      $profile_type_val[$val->tid] = $val->tname;
+    }
+  }
 
   $form["profile_type"] = array(
     '#type' => 'textfield',
     '#title' => 'Profile Type',
-    //[#default_value] => 
+    '#default_value' => implode(',', $profile_type_val),
     '#autocomplete_path' => 'admin/config/people/profile-type/autocomplete',
     '#description' => 'Type in the Profile type. For multiple profile name, type as comma seperated value',
     //'#required' => 1,
@@ -112,6 +135,10 @@ function profile_type_form_submit($form, &$form_state){
 function profile_field_type_save($profile_name, $profile_type_values){
   $profile_type_fields = _get_profile_types_field($profile_name)->fetchAssoc();
   
+  $deleted = db_delete('profile_type_field')
+		->condition('fid', $profile_name)
+  		->execute();
+     
   foreach($profile_type_values as $key => $val){
     $profile_data = array(
       "tid" => $key,
@@ -157,8 +184,15 @@ function _profile_type_get_fields($val=NULL){
 
 function _get_profile_types_field($fid=NULL, $tname=NULL){
   //echo 'fid = '.$fid;
+  $flag = 0;
   $query = db_select("profile_type_field", "ptf");
   if(!empty($fid)){
+    if(is_numeric($fid)){
+      $flag = 1; //NEED TO DELETE THIS
+      $edit = db_query('SELECT * FROM {profile_field} WHERE fid = :fid', array('fid' => $fid))->fetchAssoc();
+      $fid = $edit['name'];
+    }
+    
     $query->condition('fid', $fid);
   }else{
     //return;
@@ -178,15 +212,21 @@ function _get_profile_types_field($fid=NULL, $tname=NULL){
 */
 function customimr_user_presave(&$edit, $account, $category) {
   $arg = arg(2);
-  $gender = $edit['profile_gender'];
+  if(arg(2) != 'edit'){
+    if(isset($edit['profile_business_type'])){
+	$business_cat = $edit['profile_business_type'];
+    }
+   $imr_frst = ($arg == 'hospital-business')?$business_cat{0}:'I';
+  $gender = isset($edit['profile_gender'])?$edit['profile_gender']:'';
   $zone_ind = $edit['profile_province_region'];
   $stat_id = $edit['profile_state'];
   $dis_flag = ($edit['profile_physical_challenge'] == 1)?'D':'';
   $random_no = rand(1,99999);//crc32($edit['name']);
 
-  $imr_no = ucwords($arg{0}).ucwords($gender{0}).ucwords($zone_ind{0}).ucwords($stat_id{0}).$dis_flag.$random_no;
+  $imr_no = $imr_frst.ucwords($gender{0}).ucwords($zone_ind{0}).ucwords($stat_id{0}).ucwords($stat_id{1}).$dis_flag.$random_no;
   $edit['data']['imr_no'] = $imr_no;
-  drupal_set_message('Your IMR Number is '.$imr_no); 
+  drupal_set_message('Your IMR Number is '.$imr_no);
+ } 
 }
 
 
